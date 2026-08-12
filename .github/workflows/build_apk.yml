@@ -2,7 +2,7 @@ name: Build VoidPAK Toolkit APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -48,12 +48,6 @@ jobs:
           ant \
           openjdk-17-jdk
 
-    - name: Setup Android SDK and Accept Licenses
-      uses: android-actions/setup-android@v3
-      with:
-        cmdline-tools-version: "11076708_latest"
-        packages: "platforms;android-33 build-tools;33.0.2 platform-tools"
-
     - name: Install Buildozer and Cython
       run: |
         python -m pip install --upgrade pip
@@ -61,7 +55,7 @@ jobs:
 
     - name: Build APK with Buildozer
       run: |
-        buildozer -v android debug
+        yes | buildozer -v android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
