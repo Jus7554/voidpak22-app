@@ -1,0 +1,70 @@
+name: Build VoidPAK Toolkit APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip \
+          build-essential \
+          git \
+          ffmpeg \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixer-dev \
+          libsdl2-ttf-dev \
+          libportmidi-dev \
+          libswscale-dev \
+          libavformat-dev \
+          libavcodec-dev \
+          zlib1g-dev \
+          libbsd-dev \
+          libncurses5-dev \
+          libsqlite3-dev \
+          libssl-dev \
+          libffi-dev \
+          libxml2-dev \
+          libxslt1-dev \
+          autoconf \
+          libtool \
+          pkg-config \
+          ant \
+          openjdk-17-jdk
+
+    - name: Setup Android SDK and Accept Licenses
+      uses: android-actions/setup-android@v3
+      with:
+        cmdline-tools-version: "11076708_latest"
+        packages: "platforms;android-33 build-tools;33.0.2 platform-tools"
+
+    - name: Install Buildozer and Cython
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade cython==0.29.36 buildozer
+
+    - name: Build APK with Buildozer
+      run: |
+        buildozer -v android debug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: voidpak-toolkit-apk
+        path: bin/*.apk
